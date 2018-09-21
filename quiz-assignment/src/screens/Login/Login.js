@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './../../App.css';
 import './Login.css'
+import swal from 'sweetalert';
 
 class Login extends Component {
   constructor(props){
@@ -14,16 +15,24 @@ class Login extends Component {
     this.sign = this.sign.bind(this);
     this.submit = this.submit.bind(this);
     this.check = this.check.bind(this);
+    console.log(props)
   }
 
   sign(){
-    this.props.signup();
+    this.props.sign();
   }
 
   submit(){
     const {email,userEmail,password,userPassword} = this.state;
     if(email === userEmail && password === userPassword){
-      
+      localStorage.setItem('login',true)
+      this.props.userLogin();
+    }
+    else{
+      swal({
+        title: "Incorrect Email or Password!",
+        icon: "warning",
+      });
     }
   }
 

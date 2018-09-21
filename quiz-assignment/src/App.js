@@ -11,12 +11,14 @@ class App extends Component {
   constructor(){
     super();
     this.state = {
+      login : localStorage.getItem('login') ? localStorage.getItem('login') : false,
       main : false,
       newUser : false
     }
     this.buttons = this.buttons.bind(this);
     this.login = this.login.bind(this);
     this.signup = this.signup.bind(this);
+    this.loginTrue = this.loginTrue.bind(this);
   }
   buttons(){
     return <div>
@@ -35,17 +37,22 @@ class App extends Component {
       newUser : true
     })
   }
+  loginTrue(){
+    this.setState({
+      login : true
+    })
+  }
 
   
   render() {
-    const {main,newUser} = this.state;
+    const {main,newUser,login} = this.state;
     return (
-      <div className="App">
+      <div>
       <Header />
-      <Quiz />
-      {!main && !newUser && this.buttons()}
-      {main && !newUser && <Login signup = {this.signup} />}
+      {main && !newUser && !login && <Login userLogin = {this.loginTrue} sign={this.signup}/>}
       {newUser && <Signup log = {this.login} />}
+      {!login && !main && !newUser && this.buttons()}
+      {login && <Quiz />}
     </div>
 
     );

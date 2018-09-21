@@ -7,6 +7,16 @@ class Quiz extends Component {
   constructor(){
     super();
     this.state = {
+      time : false,
+      minute : 4,
+      sec : 59,
+      result : false,
+      keyTrue : false,
+      secretKey : 'mans',
+      keyCheck : '',
+      buttonDisable : true,
+      correct : 0,
+      clicked : '',
       quiz : ['AngularJS','Vuejs','React','HTML5','CSS3','JavaScript'],
       count : 0,
       quizQuestions : '',
@@ -750,6 +760,9 @@ class Quiz extends Component {
     this.startQuiz = this.startQuiz.bind(this);
     this.questionData = this.questionData.bind(this);
     this.nextQuestion = this.nextQuestion.bind(this);
+    this.clickChecker = this.clickChecker.bind(this);
+    this.securityCheck = this.securityCheck.bind(this);
+    this.keyCheck = this.keyCheck.bind(this);
   }
   dabao(i){
     const {quizzez,tests} = this.state
@@ -766,9 +779,9 @@ class Quiz extends Component {
     return <div>
       <h1>{tests} Quiz</h1>
       <ol>
-        <li><button className='button1' onClick={this.quizData.bind(this,quizzez[tests].Quiz1)}>Quiz 1</button></li>
-        <li><button className='button1' onClick={this.quizData.bind(this,quizzez[tests].Quiz1)}>Quiz 2</button></li>
-        <li><button className='button1' onClick={this.quizData.bind(this,quizzez[tests].Quiz1)}>Quiz 3</button></li>
+        <li><button className='button1' onClick={this.quizData.bind(this,quizzez[tests].Quiz1)}>1. Quiz 1</button></li>
+        <li><button className='button1' onClick={this.quizData.bind(this,quizzez[tests].Quiz1)}>2. Quiz 2</button></li>
+        <li><button className='button1' onClick={this.quizData.bind(this,quizzez[tests].Quiz1)}>3. Quiz 3</button></li>
       </ol>
     </div>
   }
@@ -796,47 +809,132 @@ class Quiz extends Component {
       quizStart : true
     })
   }
+  // timer(){
+  //   var min = 4;
+  //   var sec = 59;
+  //   setInterval(()=>{
+  //     if(sec===0){
+  //       min--;
+  //     }
+  //     else{
+  //       sec--;
+  //     }
+  //     return <div>{sec}</div>
+  //   },1000)
+  // }
 
   questionData(){
-    const {quizQuestions,count} = this.state;
+    const {quizQuestions,count,buttonDisable} = this.state;
     console.log(quizQuestions);
-    return <div class="container">
-      {quizQuestions[count].question}
-      <div class="radio">
-      <label><input type="radio" name="optradio" />{quizQuestions[count].A}</label>
+    return <div>
+      <div>
+        <h1>{count+1}. {quizQuestions[count].question}</h1>
+      </div>
+      <label className="container">{quizQuestions[count].A}
+        <input type="radio" name="radio" value={quizQuestions[count].A} onClick={this.clickChecker}/>
+        <span className="checkmark"></span>
+      </label>
+      <label className="container">{quizQuestions[count].B}
+        <input type="radio" name="radio" value={quizQuestions[count].B} onClick={this.clickChecker}/>
+        <span className="checkmark"></span>
+      </label>
+      {quizQuestions[count].C && <label className="container">{quizQuestions[count].C}
+        <input type="radio" name="radio" value={quizQuestions[count].C} onClick={this.clickChecker}/>
+        <span className="checkmark"></span>
+      </label> }
+      {quizQuestions[count].D && <label className="container">{quizQuestions[count].D}
+        <input type="radio" name="radio" value={quizQuestions[count].D} onClick={this.clickChecker}/>
+        <span className="checkmark"></span>
+      </label> }      
+      <button className='button1' disabled={buttonDisable} onClick={this.nextQuestion}>Next</button>
     </div>
-        {/* <li><input type="radio" />{quizQuestions[count].B}</li>
-        {quizQuestions[count].C && <li><input type="radio" />{quizQuestions[count].C}</li>}
-        {quizQuestions[count].D && <li><input type="radio" />{quizQuestions[count].D}</li>} */}
-      <button className='button1' onClick={this.nextQuestion}>Next</button>
-    </div>
-
   }
 
-  nextQuestion(){
-    const {count} = this.state;
+  clickChecker(val){
+    console.log(val.target)
     this.setState({
-      count : count + 1
+      clicked : val.target.value,
+      buttonDisable : false
     })
   }
 
+  nextQuestion(){
+    const {count,quizQuestions,clicked,correct} = this.state;
+    const ans = quizQuestions[count].answer;
+    console.log(quizQuestions[count])
+    console.log(quizQuestions[count][ans])
+    if(quizQuestions[count][ans] === clicked){
+      this.setState({
+        correct : correct+1
+      })
+    }
+    if(count < quizQuestions.length - 1){
+      this.setState({
+        count : count + 1,
+        buttonDisable : true
+      })
+    }
+    else{
+      this.setState({
+        result : true
+      })
+    }
+  }
+
+  submitKey(){
+    const {keyCheck} = this.state;
+    return <div>
+      <input type="password" value={keyCheck} onChange={this.keyCheck} />
+      <button className="button2" onClick={this.securityCheck}>Submit</button>
+    </div>
+  }
+  securityCheck(){
+    const {keyCheck,secretKey} = this.state;
+    if(keyCheck === secretKey){
+      this.setState({
+        keyTrue : true,
+        time : true
+      })      
+    }
+    else{
+      swal("Key Error")
+    }
+  }
+
+  keyCheck(val){
+    console.log(val.target)
+    this.setState({
+      keyCheck : val.target.value
+    })
+  }
+
+  resultPage(){
+    const {correct,quizQuestions,tests} = this.state;
+    const per = (correct/quizQuestions.length)*100
+    console.log(correct)
+    return <div>
+      <h1>{tests}</h1>
+      <h1>Your score is {per}%</h1>
+    </div>
+  }
 
   render() {
-    const {quiz,userName,quizPage,quizStart} = this.state;
-    console.log(quiz)
+    const {quiz,userName,quizPage,quizStart,keyTrue,result} = this.state;
+    // console.log(quiz)
     return (
       <div>
         {quizPage && !quizStart && <div>
-      <div>{userName}</div>
-      <ol>
+      <h1 className="quiz1"><b><i><u>{userName}</u></i></b></h1>
         {quiz.map((v,i)=>{
-          return <li key={i}>{v} <button className='button1' onClick={()=> this.dabao(v)}>Take Quiz</button></li>
+          return <div key={i}><h3>{i+1}. {v}</h3> <button className='button1 button-right' onClick={()=> this.dabao(v)}>Take Quiz</button></div>
         })}
-      </ol>
       </div>}
-      {!quizPage && !quizStart && this.quiztaker()}
-      {!quizPage && quizStart && this.instruction()}
-      {quizPage && quizStart && this.questionData()}
+      {!quizPage && !quizStart && !keyTrue && !result && this.quiztaker()}
+      {!quizPage && quizStart && !keyTrue && !result && this.instruction()}
+      {quizPage && quizStart && !keyTrue && !result && this.submitKey()}
+      {/* {time && this.timer()} */}
+      {quizPage && quizStart && keyTrue && !result && this.questionData()}
+      {result && this.resultPage()}
       </div>
     );
   }
